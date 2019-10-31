@@ -137,11 +137,22 @@ class CourseTeam(models.Model):
 
     field_tracker = FieldTracker()
 
+    organization_protected = models.BooleanField(default=False)
+
     # Don't emit changed events when these fields change.
     FIELD_BLACKLIST = ['last_activity_at', 'team_size']
 
     @classmethod
-    def create(cls, name, course_id, description, topic_id=None, country=None, language=None):
+    def create(
+        cls,
+        name,
+        course_id,
+        description,
+        topic_id=None,
+        country=None,
+        language=None,
+        organization_protected=False
+    ):
         """Create a complete CourseTeam object.
 
         Args:
@@ -155,6 +166,8 @@ class CourseTeam(models.Model):
               is based, as ISO 3166-1 code.
             language (str, optional): An optional language which the
               team uses, as ISO 639-1 code.
+            organization_protected (bool, optional): specifies whether the team should only
+              contain members who are in a organization context, or not
 
         """
         unique_id = uuid4().hex
@@ -170,7 +183,8 @@ class CourseTeam(models.Model):
             description=description,
             country=country if country else '',
             language=language if language else '',
-            last_activity_at=datetime.utcnow().replace(tzinfo=pytz.utc)
+            last_activity_at=datetime.utcnow().replace(tzinfo=pytz.utc),
+            organization_protected=organization_protected
         )
 
         return course_team

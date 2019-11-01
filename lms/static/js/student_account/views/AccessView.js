@@ -16,10 +16,12 @@
         'js/student_account/views/InstitutionLoginView',
         'js/student_account/views/HintedLoginView',
         'edx-ui-toolkit/js/utils/html-utils',
+        'js/student_account/multiple_enterprise',
         'js/vendor/history'
     ],
         function($, utility, _, _s, Backbone, LoginModel, PasswordResetModel, RegisterModel, AccountRecoveryModel,
-                 LoginView, PasswordResetView, RegisterView, InstitutionLoginView, HintedLoginView, HtmlUtils) {
+                 LoginView, PasswordResetView, RegisterView, InstitutionLoginView, HintedLoginView, HtmlUtils,
+                 multipleEnterpriseInterface) {
             return Backbone.View.extend({
                 tpl: '#access-tpl',
                 events: {
@@ -43,7 +45,6 @@
                  * Underscore namespace
                  */
                     _.mixin(_s.exports());
-
                     this.tpl = $(this.tpl).html();
 
                     this.activeForm = options.initial_mode || 'login';
@@ -70,7 +71,7 @@
                         institution_login: null,
                         hinted_login: null
                     };
-
+                    this.multipleEnterpriseUrl = 'http://www.amazon.com';
                     this.platformName = options.platform_name;
                     this.supportURL = options.support_link;
                     this.passwordResetSupportUrl = options.password_reset_support_link;
@@ -115,6 +116,13 @@
                     this.postRender();
 
                     return this;
+                },
+
+                checkMultipleEnterprises: function(nextUrl) {
+                var nextParam = '/?success_url=' + nextUrl
+                var redirectUrl = new URL(nextParam, this.multipleEnterpriseUrl);
+                var edxUserInfoCookie = jQuery.cookie.get('edx-user-info');
+                multipleEnterpriseInterface.check('edx', redirectUrl.href, nextUrl)
                 },
 
                 postRender: function() {
@@ -279,10 +287,10 @@
              */
                 authComplete: function() {
                     if (this.thirdPartyAuth && this.thirdPartyAuth.finishAuthUrl) {
-                        this.redirect(this.thirdPartyAuth.finishAuthUrl);
+                        this.checkMultipleEnterprises(this.thirdPartyAuth.finishAuthUrl)
                     // Note: the third party auth URL likely contains another redirect URL embedded inside
                     } else {
-                        this.redirect(this.nextUrl);
+                        this.checkMultipleEnterprises(this.nextUrl);
                     }
                 },
 

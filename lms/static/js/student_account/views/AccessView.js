@@ -71,7 +71,7 @@
                         institution_login: null,
                         hinted_login: null
                     };
-                    this.multipleEnterpriseUrl = 'http://www.amazon.com';
+                    this.multipleEnterpriseUrl = '/enterprise/select/active/?success_url=';
                     this.platformName = options.platform_name;
                     this.supportURL = options.support_link;
                     this.passwordResetSupportUrl = options.password_reset_support_link;
@@ -119,17 +119,16 @@
                 },
 
                 checkMultipleEnterprises: function(nextUrl) {
-                  let nextParam = '/?success_url=' + nextUrl;
-                  let redirectUrl = new URL(nextParam, this.multipleEnterpriseUrl);
-                  let edxUserNameCookie = this.getUserFromCookie()["username"];
-                  multipleEnterpriseInterface.check(edxUserNameCookie, redirectUrl.href, nextUrl)
+                    var redirectUrl = this.multipleEnterpriseUrl + nextUrl;
+                    var edxUserNameCookie = this.getUserFromCookie().username;
+                    multipleEnterpriseInterface.check(edxUserNameCookie, redirectUrl, nextUrl);
                 },
 
                 getUserFromCookie: function() {
-                  // returns the user object from cookie
-                  let user = $.cookie('edx-user-info').replace(/\\/g, "").replace(/054/g, ',');
-                  user = user.substring(1, user.length - 1);
-                  return JSON.parse(user);
+                    // returns the user object from cookie
+                    var user = $.cookie('edx-user-info').replace(/\\/g, '').replace(/054/g, ',');
+                    user = user.substring(1, user.length - 1);
+                    return JSON.parse(user);
                 },
 
                 postRender: function() {
@@ -173,7 +172,7 @@
                         this.listenTo(this.subview.login, 'password-help', this.resetPassword);
 
                     // Listen for 'auth-complete' event so we can enroll/redirect the user appropriately.
-                        this.listenTo(this.subview.login, 'auth-complete', this.authComplete);
+                        this.listenTo(this.subview.login, 'auth-complete', this.loginComplete);
                     },
 
                     reset: function(data) {
@@ -294,7 +293,21 @@
              */
                 authComplete: function() {
                     if (this.thirdPartyAuth && this.thirdPartyAuth.finishAuthUrl) {
-                        this.checkMultipleEnterprises(this.thirdPartyAuth.finishAuthUrl)
+                        this.redirect(this.thirdPartyAuth.finishAuthUrl);
+                    // Note: the third party auth URL likely contains another redirect URL embedded inside
+                    } else {
+                        this.redirect(this.nextUrl);
+                    }
+                },
+
+            /**
+            /**
+             * Take a learner attached to multiple enterprises to the enterprise selection page:
+             *
+             */
+                loginComplete: function() {
+                    if (this.thirdPartyAuth && this.thirdPartyAuth.finishAuthUrl) {
+                        this.checkMultipleEnterprises(this.thirdPartyAuth.finishAuthUrl);
                     // Note: the third party auth URL likely contains another redirect URL embedded inside
                     } else {
                         this.checkMultipleEnterprises(this.nextUrl);

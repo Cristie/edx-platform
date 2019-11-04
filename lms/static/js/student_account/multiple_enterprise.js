@@ -18,29 +18,26 @@
              * @param  {string} redirectUrl The URL to redirect to.
              */
             check: function(user, redirectUrl, nextUrl) {
-                var data_obj = {user: user},
-                    data = JSON.stringify(data_obj);
-                var next = nextUrl || '/'
+                var next = nextUrl || '/';
                 $.ajax({
                     url: this.urls.learners + '?username=' + user,
                     type: 'GET',
                     contentType: 'application/json; charset=utf-8',
-                    data: data,
                     headers: this.headers,
                     context: this
-                }).fail(function(jqXHR) {
+                }).fail(function() {
                     this.redirect(next);
                 }).done(function(response) {
                     if (response.count > 1 && redirectUrl) {
                         this.redirect(redirectUrl);
                     } else {
-                        this.redirect(next)
+                        this.redirect(next);
                     }
                 });
             },
 
             /**
-             * Redirect to a URL.  Mainly useful for mocking out in tests.
+             * Redirect to a URL.
              * @param  {string} url The URL to redirect to.
              */
             redirect: function(url) {

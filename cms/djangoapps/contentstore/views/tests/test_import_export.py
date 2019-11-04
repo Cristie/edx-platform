@@ -1055,7 +1055,7 @@ class TestCourseExportImportProblem(CourseTestCase):
             display_name='Test Unit'
         )
 
-        problem = ItemFactory.create(
+        ItemFactory.create(
             parent_location=vertical.location,
             category='problem',
             display_name='Test Problem',
@@ -1076,10 +1076,11 @@ class TestCourseExportImportProblem(CourseTestCase):
         """
         Asserts that problems' data is as expected (maintain pre-tag content)
         """
-        expected_problem = '<problem>\n  <pre><code>x=10</code></pre>\n  <multiplechoiceresponse/>\n</problem>\n'
+        expected_problem_content = '<problem>\n  <pre><code>x=10</code></pre>\n' \
+                                   '  <multiplechoiceresponse/>\n</problem>\n'
         problem_after_import = self.get_problem_content(dest_course_location)
 
-        self.assertEquals(expected_problem, problem_after_import)
+        self.assertEquals(expected_problem_content, problem_after_import)
 
     @ddt.data(True, False)
     def test_problem_content_on_course_export_import(self, publish_item):

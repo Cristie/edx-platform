@@ -119,10 +119,17 @@
                 },
 
                 checkMultipleEnterprises: function(nextUrl) {
-                var nextParam = '/?success_url=' + nextUrl
-                var redirectUrl = new URL(nextParam, this.multipleEnterpriseUrl);
-                var edxUserInfoCookie = jQuery.cookie.get('edx-user-info');
-                multipleEnterpriseInterface.check('edx', redirectUrl.href, nextUrl)
+                  let nextParam = '/?success_url=' + nextUrl;
+                  let redirectUrl = new URL(nextParam, this.multipleEnterpriseUrl);
+                  let edxUserNameCookie = this.getUserFromCookie()["username"];
+                  multipleEnterpriseInterface.check(edxUserNameCookie, redirectUrl.href, nextUrl)
+                },
+
+                getUserFromCookie: function() {
+                  // returns the user object from cookie
+                  let user = $.cookie('edx-user-info').replace(/\\/g, "").replace(/054/g, ',');
+                  user = user.substring(1, user.length - 1);
+                  return JSON.parse(user);
                 },
 
                 postRender: function() {

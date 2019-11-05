@@ -8,6 +8,7 @@ import json
 
 import ddt
 import six
+from datetime import datetime
 from django.conf import settings
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -298,6 +299,27 @@ class CertificateRegenerateTests(CertificateSupportTestCase):
         # we'd expect that the certificate status will be "notpassing"
         cert = GeneratedCertificate.eligible_certificates.get(user=self.student)
         self.assertEqual(cert.status, CertificateStatuses.notpassing)
+
+    def test_regenerate_certificate_for_honor_mode(self):
+        """Test web certificate regenration for the users who have earned the
+           certificate in honor mode
+        """
+        self.cert.mode = 'honor'
+        self.cert.save()
+
+        response = self._regenerate(
+            course_key=self.course.id,
+            username=self.STUDENT_USERNAME,
+        )
+        self.assertEqual(response.status_code, 200)
+        cert = GeneratedCertificate.eligible_certificates.get(user=self.student)
+
+        # check that user certificate has been generated
+        # Earlier user enrollment mode was verified. Now it should be honor.
+        # created data should be equal to datetime.now
+        self.assertEqual(cert.status, CertificateStatuses.downloadable)
+        self.assertEqual(cert.mode, 'honor')
+        self.assertEqual(cert.created_date.date(), datetime.now().date())
 
     def test_regenerate_certificate_missing_params(self):
         # Missing username

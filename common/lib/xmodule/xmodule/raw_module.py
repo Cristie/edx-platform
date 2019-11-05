@@ -12,7 +12,7 @@ from .exceptions import SerializationError
 
 log = logging.getLogger(__name__)
 
-PRE_TAG_REGEX = r'<pre>[\s\S]*?</pre>'
+PRE_TAG_REGEX = re.compile(r'<pre>[\s\S]*?</pre>')
 
 
 class RawMixin(object):
@@ -26,10 +26,9 @@ class RawMixin(object):
     @classmethod
     def definition_from_xml(cls, xml_object, system):
         pre_tag_data = [etree.tostring(pre_tag_info) for pre_tag_info in xml_object.findall('pre')]
-        pre_tag_pattern = re.compile(PRE_TAG_REGEX)
         data = etree.tostring(xml_object, pretty_print=True, encoding='unicode')
         if pre_tag_data:
-            for index, pre_tag in enumerate(re.findall(pre_tag_pattern, data)):
+            for index, pre_tag in enumerate(re.findall(PRE_TAG_REGEX, data)):
                 data = re.sub(re.escape(pre_tag), pre_tag_data[index], data)
         return {'data': data}, []
 

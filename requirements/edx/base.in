@@ -52,6 +52,7 @@ django-mysql==2.4.1
 django-oauth-toolkit<1.2            # Provides oAuth2 capabilities for Django. 1.2+ requires Django 2 and Python 3.5
 django-pipeline
 django-pyfs
+django-queryset-csv
 django-ratelimit
 django-ratelimit-backend==1.1.1
 django-require
